@@ -1,43 +1,29 @@
-pipeline {
-    agent  any
 
+           
+       pipeline {
+    agent any
 
-        
-       // docker {
-         //   image 'node:lts-buster-slim'
-         //   args '-p 3000:3000'
-      //  }
- 
     environment {
         CI = 'true'
     }
+
     stages {
-       // stage('docker'){
-         //           steps {
-                        //https://hub.docker.com/_/node/tags --check for the latest node.js
-          //sh 'docker run --rm node:18-alpine npm install'
-        //}
-    stage('Install Dependencies in Docker') {
+        stage('Install Dependencies in Docker') {
             steps {
+                // Check for latest Node.js: https://hub.docker.com/_/node/tags
                 sh '''
                 docker run --rm -v $PWD:/app -w /app node:18-alpine sh -c "\
                   npm ci --cache /tmp/empty-cache || (rm -rf node_modules package-lock.json && npm install --cache /tmp/empty-cache)"
                 '''
-                '''
             }
         }
-           
-        }
-        //stage('Build') {
-         //   steps {
-           //     sh 'npm install'
-          //  }
-      //  }
+
         stage('Test') {
             steps {
                 sh './jenkins/scripts/test.sh'
             }
         }
+
         stage('Deliver') {
             steps {
                 sh './jenkins/scripts/deliver.sh'
