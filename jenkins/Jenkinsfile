@@ -12,11 +12,21 @@ pipeline {
         CI = 'true'
     }
     stages {
-        stage('docker'){
-                    steps {
+       // stage('docker'){
+         //           steps {
                         //https://hub.docker.com/_/node/tags --check for the latest node.js
-          sh 'docker run --rm node:18-alpine npm install'
+          //sh 'docker run --rm node:18-alpine npm install'
+        //}
+    stage('Install Dependencies in Docker') {
+            steps {
+                sh '''
+                docker run --rm -v $PWD:/app -w /app node:18-alpine sh -c "\
+                  npm ci --cache /tmp/empty-cache || (rm -rf node_modules package-lock.json && npm install --cache /tmp/empty-cache)"
+                '''
+                '''
+            }
         }
+           
         }
         //stage('Build') {
          //   steps {
