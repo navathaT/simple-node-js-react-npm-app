@@ -1,14 +1,23 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:lts-buster-slim'
-            args '-p 3000:3000'
-        }
-    }
+    agent  any
+
+
+        
+       // docker {
+         //   image 'node:lts-buster-slim'
+         //   args '-p 3000:3000'
+      //  }
+ 
     environment {
         CI = 'true'
     }
     stages {
+        stage('docker'){
+                    steps {
+                        //https://hub.docker.com/_/node/tags --check for the latest node.js
+          sh 'docker run --rm node:18-alpine npm install'
+        }
+        }
         stage('Build') {
             steps {
                 sh 'npm install'
