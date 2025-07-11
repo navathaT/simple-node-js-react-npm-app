@@ -18,11 +18,18 @@
             }
         }
 
-        stage('Test') {
+     /*   stage('Test') {
             steps {
                 sh './jenkins/scripts/test.sh'
             }
-        }
+        }*/
+           stage('Test') {
+    steps {
+        sh '''
+        docker run --rm -v "$PWD:/app" -w /app node:18-alpine sh -c "./jenkins/scripts/test.sh"
+        '''
+    }
+}
 
         stage('Deliver') {
             steps {
