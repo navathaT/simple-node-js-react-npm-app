@@ -18,11 +18,11 @@ pipeline {
           sh 'docker run --rm node:18-alpine npm install'
         }
         }
-        stage('Build') {
-            steps {
-                sh 'npm install'
-            }
-        }
+        //stage('Build') {
+         //   steps {
+           //     sh 'npm install'
+          //  }
+      //  }
         stage('Test') {
             steps {
                 sh './jenkins/scripts/test.sh'
