@@ -1,6 +1,4 @@
-
-           
-       pipeline {
+pipeline {
     agent any
 
     environment {
@@ -8,35 +6,50 @@
     }
 
     stages {
+
         stage('Install Dependencies in Docker') {
             steps {
-                // Check for latest Node.js: https://hub.docker.com/_/node/tags
                 sh '''
-                docker run --rm -v $PWD:/app -w /app node:18-alpine sh -c "\
-                  npm ci --cache /tmp/empty-cache || (rm -rf node_modules package-lock.json && npm install --cache /tmp/empty-cache)"
+                docker run --rm \
+                    -v "${WORKSPACE}:/app" \
+                    -w /app \
+                    node:18-alpine sh -c '\
+                        npm ci --cache /tmp/empty-cache || \
+                        (rm -rf node_modules package-lock.json && npm install --cache /tmp/empty-cache)'
                 '''
             }
         }
 
-     /*   stage('Test') {
+        stage('Test') {
             steps {
-                sh './jenkins/scripts/test.sh'
+                sh '''
+                docker run --rm \
+                    -v "${WORKSPACE}:/app" \
+                    -w /app \
+                    node:18-alpine sh -c './jenkins/scripts/test.sh'
+                '''
             }
-        }*/
-           stage('Test') {
-    steps {
-        sh '''
-        docker run --rm -v "$PWD:/app" -w /app node:18-alpine sh -c "./jenkins/scripts/test.sh"
-        '''
-    }
-}
+        }
 
         stage('Deliver') {
             steps {
-                sh './jenkins/scripts/deliver.sh'
+                sh '''
+                ./jenkins/scripts/deliver.sh
+                '''
                 input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                sh './jenkins/scripts/kill.sh'
+                sh '''
+                ./jenkins/scripts/kill.sh
+                '''
             }
+        }
+    }
+
+    post {
+        failure {
+            echo "Pipeline failed. Please check the logs for errors."
+        }
+        success {
+            echo "Pipeline completed successfully!"
         }
     }
 }
